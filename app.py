@@ -414,7 +414,7 @@ print(f"   Is UNIRIG_REPO_DIR ('{os.path.abspath(UNIRIG_REPO_DIR)}') in sys.path
 
 
 unirig_src_dir_in_cwd_exists = os.path.isdir('src')
-print(f"   Is 'src' directory present in CWD ('{{os.getcwd()}}')? {'Yes' if unirig_src_dir_in_cwd_exists else 'No'}")
+print(f"   Is 'src' directory present in CWD ('{{os.getcwd()}}')? {{'Yes' if unirig_src_dir_in_cwd_exists else 'No'}}")
 if unirig_src_dir_in_cwd_exists:
     init_py_in_src_exists = os.path.isfile(os.path.join('src', '__init__.py'))
     print(f"     Is 'src/__init__.py' present? {'Yes' if init_py_in_src_exists else 'No'}")
