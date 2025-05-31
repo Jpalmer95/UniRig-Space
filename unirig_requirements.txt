@@ -1,0 +1,47 @@
+# UniRig Dependencies (to be installed into Blender's Python 3.11)
+
+# Numpy (UniRig: 1.26.4)
+numpy==1.26.4
+
+# PyTorch (Matching main env for simplicity, ensure compatibility with UniRig >=2.3.1)
+# Install the version compatible with Python 3.11 and CUDA 12.1
+# Example using index-url, adjust if needed
+# Note: This will be installed *first* by setup_blender.sh, but listing it here ensures
+# pip knows the version constraint when resolving other dependencies later.
+
+# Make sure torch, torchvision, torch-scatter, etc. are also listed with their correct versions/flags
+torch==2.3.1 --index-url https://download.pytorch.org/whl/cu121
+torchvision==0.18.1 --index-url https://download.pytorch.org/whl/cu121
+
+torch-scatter -f https://data.pyg.org/whl/torch-2.3.1+cu121.html
+torch-cluster -f https://data.pyg.org/whl/torch-2.3.1+cu121.html
+
+# Spconv (for CUDA 12.1 - check compatibility with Python 3.11 if issues arise)
+spconv-cu121
+
+# Dependencies from UniRig's official requirements.txt
+transformers
+python-box
+einops
+omegaconf
+pytorch_lightning # Or just 'lightning' depending on UniRig's imports
+lightning         # Might be redundant if pytorch_lightning is used
+addict
+timm
+fast-simplification
+trimesh
+open3d
+pyrender
+huggingface_hub
+scipy
+smplx
+chumpy
+opencv-python
+Pillow
+pyquaternion
+hydra-core
+rich
+distinctipy
+scikit-image
+mediapipe
+bpy==4.2
