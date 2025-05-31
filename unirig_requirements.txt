@@ -10,14 +10,14 @@ numpy==1.26.4
 # pip knows the version constraint when resolving other dependencies later.
 
 # Make sure torch, torchvision, torch-scatter, etc. are also listed with their correct versions/flags
-torch==2.3.1 --index-url https://download.pytorch.org/whl/cu121
-torchvision==0.18.1 --index-url https://download.pytorch.org/whl/cu121
+torch==2.3.1 --index-url https://download.pytorch.org/whl/cu118
+torchvision==0.18.1 --index-url https://download.pytorch.org/whl/cu118
 
-torch-scatter -f https://data.pyg.org/whl/torch-2.3.1+cu121.html
-torch-cluster -f https://data.pyg.org/whl/torch-2.3.1+cu121.html
+torch-scatter -f https://data.pyg.org/whl/torch-2.3.1+cu118.html
+torch-cluster -f https://data.pyg.org/whl/torch-2.3.1+cu118.html
 
-# Spconv (for CUDA 12.1 - check compatibility with Python 3.11 if issues arise)
-spconv-cu121
+# Spconv (for CUDA 11.8 - check compatibility with Python 3.11 if issues arise)
+spconv-cu118
 
 # Dependencies from UniRig's official requirements.txt
 transformers
