@@ -409,8 +409,10 @@ print("\n2. Checking for UniRig 'src' module availability...")
 # The f-string formatting {os.path.abspath(UNIRIG_REPO_DIR)} ensures this path is correctly embedded
 # into the script content that Blender's Python will execute.
 print(f"   Expected UniRig repo parent in sys.path: '{os.path.abspath(UNIRIG_REPO_DIR)}'")
-found_unirig_in_sys_path = any(os.path.abspath(UNIRIG_REPO_DIR) == os.path.abspath(p) for p in sys.path)
-print(f"   Is UNIRIG_REPO_DIR ('{os.path.abspath(UNIRIG_REPO_DIR)}') in sys.path (at diagnostic script generation time)? {'Yes' if found_unirig_in_sys_path else 'No'}")
+# The following lines are now part of the script executed by Blender's Python:
+blender_script_unirig_repo_abspath = r'''{os.path.abspath(UNIRIG_REPO_DIR)}''' # app.py embeds the path string here
+found_unirig_in_blender_sys_path = any(os.path.abspath(p) == blender_script_unirig_repo_abspath for p in sys.path)
+print(f"   Is UNIRIG_REPO_DIR ('{{blender_script_unirig_repo_abspath}}') actually in Blender's sys.path? {{'Yes' if found_unirig_in_blender_sys_path else 'No'}}")
 
 
 unirig_src_dir_in_cwd_exists = os.path.isdir('src')
