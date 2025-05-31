@@ -1,0 +1,11 @@
+python3.11-dev
+xvfb
+libosmesa6-dev
+libosmesa6
+freeglut3-dev
+libgl1-mesa-glx
+libsm6
+libxext6
+libxrender-dev
+ffmpeg
+build-essential
