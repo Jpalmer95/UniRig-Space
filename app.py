@@ -376,42 +376,111 @@ def rig_glb_mesh_multistep(input_glb_file_obj):
 import sys
 import os
 import traceback
-print("--- Diagnostic Info from Blender Python ---")
+
+print("--- Enhanced Diagnostic Info from Blender Python ---")
 print(f"Python Executable: {{sys.executable}}")
+print(f"Python Version: {{sys.version.replace('\n', ' ')}}") # Added sys.version
 print(f"Current Working Directory (inside script): {{os.getcwd()}}")
-print("sys.path:")
-for p in sys.path: print(f"  {{p}}")
-print("\\nPYTHONPATH Environment Variable (as seen by script):")
+
+print("\nsys.path:")
+for i, p in enumerate(sys.path): print(f"  {{i}}: {{p}}")
+
+print("\nPYTHONPATH Environment Variable (as seen by script):")
 print(os.environ.get('PYTHONPATH', 'PYTHONPATH not set or empty'))
-print("\\nLD_LIBRARY_PATH Environment Variable (as seen by script):")
+
+print("\nLD_LIBRARY_PATH Environment Variable (as seen by script):")
 print(os.environ.get('LD_LIBRARY_PATH', 'LD_LIBRARY_PATH not set or empty'))
-print("\\n--- Attempting Imports ---")
+
+print("\n--- Attempting Critical Imports ---")
+
+# 1. bpy
+print("\n1. Attempting 'bpy' import...")
 try:
     import bpy
-    print("SUCCESS: 'bpy' imported.")
+    print("  SUCCESS: 'bpy' imported.")
+    print(f"     bpy version: {{bpy.app.version_string}}")
 except Exception as e:
-    print(f"FAILED to import 'bpy': {{e}}")
-    traceback.print_exc()
+    print(f"  FAILED to import 'bpy': {{e}}")
+    traceback.print_exc(file=sys.stderr)
+
+# 2. UniRig 'src' module
+print("\n2. Checking for UniRig 'src' module availability...")
+# UNIRIG_REPO_DIR from app.py's function scope will be interpolated here by Python when app.py runs
+# The f-string formatting {os.path.abspath(UNIRIG_REPO_DIR)} ensures this path is correctly embedded
+# into the script content that Blender's Python will execute.
+print(f"   Expected UniRig repo parent in sys.path: '{os.path.abspath(UNIRIG_REPO_DIR)}'")
+found_unirig_in_sys_path = any(os.path.abspath(UNIRIG_REPO_DIR) == os.path.abspath(p) for p in sys.path)
+print(f"   Is UNIRIG_REPO_DIR ('{os.path.abspath(UNIRIG_REPO_DIR)}') in sys.path (at diagnostic script generation time)? {'Yes' if found_unirig_in_sys_path else 'No'}")
+
+
+unirig_src_dir_in_cwd_exists = os.path.isdir('src')
+print(f"   Is 'src' directory present in CWD ('{{os.getcwd()}}')? {'Yes' if unirig_src_dir_in_cwd_exists else 'No'}")
+if unirig_src_dir_in_cwd_exists:
+    init_py_in_src_exists = os.path.isfile(os.path.join('src', '__init__.py'))
+    print(f"     Is 'src/__init__.py' present? {'Yes' if init_py_in_src_exists else 'No'}")
+
+print("   Attempting 'from src.inference.download import download'...")
 try:
-    print("\\nChecking for 'src' in CWD (should be UniRig repo root):")
-    if os.path.isdir('src'): # This check is relative to CWD
-        print("  'src' directory FOUND in CWD.")
-        if os.path.isfile(os.path.join('src', '__init__.py')):
-            print("  'src/__init__.py' FOUND.")
-        else:
-            print("  WARNING: 'src/__init__.py' NOT FOUND.")
-    else:
-        print("  'src' directory NOT FOUND in CWD.")
-    print("\\nAttempting: from src.inference.download import download")
     from src.inference.download import download
-    print("SUCCESS: 'from src.inference.download import download' worked.")
+    print("  SUCCESS: 'from src.inference.download import download' worked.")
 except ImportError as e:
-    print(f"FAILED: 'from src.inference.download import download': {{e}}")
-    traceback.print_exc()
+    print(f"  FAILED: 'from src.inference.download import download': {{e}}")
+    print(f"  Make sure '{os.path.abspath(UNIRIG_REPO_DIR)}' is correctly added to sys.path by the bootstrap script executed by Blender.")
+    traceback.print_exc(file=sys.stderr)
 except Exception as e:
-    print(f"FAILED: 'from src.inference.download import download' with other error: {{e}}")
-    traceback.print_exc()
-print("--- End Diagnostic Info ---")
+    print(f"  FAILED: 'from src.inference.download import download' with other error: {{e}}")
+    traceback.print_exc(file=sys.stderr)
+
+# 3. flash_attn
+print("\n3. Attempting 'flash_attn' import...")
+try:
+    import flash_attn
+    print("  SUCCESS: 'flash_attn' imported.")
+    if hasattr(flash_attn, '__version__'):
+        print(f"     flash_attn version: {{flash_attn.__version__}}")
+except Exception as e:
+    print(f"  FAILED to import 'flash_attn': {{e}}")
+    print(f"     Note: flash-attn is expected to be installed by setup_blender.sh from a specific wheel.")
+    traceback.print_exc(file=sys.stderr)
+
+# 4. spconv
+print("\n4. Attempting 'spconv' import...")
+try:
+    import spconv
+    print("  SUCCESS: 'spconv' imported.")
+    if hasattr(spconv, 'constants') and hasattr(spconv.constants, 'SPCONV_VERSION'):
+        print(f"     spconv version: {{spconv.constants.SPCONV_VERSION}}")
+    elif hasattr(spconv, '__version__'):
+        print(f"     spconv version: {{spconv.__version__}}")
+except Exception as e:
+    print(f"  FAILED to import 'spconv': {{e}}")
+    print(f"     Note: spconv (e.g., spconv-cu118) should be installed via unirig_requirements.txt in Blender's Python.")
+    traceback.print_exc(file=sys.stderr)
+
+# 5. torch with CUDA check
+print("\n5. Attempting 'torch' import and CUDA check...")
+try:
+    import torch
+    print("  SUCCESS: 'torch' imported.")
+    print(f"     torch version: {{torch.__version__}}")
+    cuda_available = torch.cuda.is_available()
+    print(f"     torch.cuda.is_available(): {{cuda_available}}")
+    if cuda_available:
+        print(f"       torch.version.cuda: {{torch.version.cuda}}")
+        print(f"       torch.cuda.get_device_name(0): {{torch.cuda.get_device_name(0)}}")
+        print(f"       torch.cuda.get_device_capability(0): {{torch.cuda.get_device_capability(0)}}")
+    else:
+        print(f"       CUDA not available to PyTorch in this Blender Python environment.")
+        if "cpu" in torch.__version__: # Check if it's a CPU build explicitly
+            print("       PyTorch build appears to be CPU-only.")
+        else:
+            print("       PyTorch build is not CPU-only, but CUDA is still not available. Check drivers/runtime/setup for Blender Python env.")
+
+except Exception as e:
+    print(f"  FAILED to import 'torch' or perform CUDA checks: {{e}}")
+    traceback.print_exc(file=sys.stderr)
+
+print("\n--- End Enhanced Diagnostic Info ---")
 """
         # Save diagnostic script to the processing_temp_dir
         diagnostic_script_path = os.path.join(processing_temp_dir, "env_diagnostic_test.py")
