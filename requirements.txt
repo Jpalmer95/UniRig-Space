@@ -1,0 +1,14 @@
+# Main Gradio/Space dependencies (Python 3.10 for ZeroGPU compatibility)
+
+# PyTorch for the main environment (ZeroGPU often requires torch)
+# Ensure this version is compatible with Gradio/Spaces and Python 3.10
+torch>=2.3.1
+torchvision>=0.18.1
+
+# Gradio and Hugging Face Spaces helper
+# Lock Gradio version for stability if needed, e.g., ==5.29.0
+gradio>=5.29.0,<5.30.0
+spaces
+
+# NOTE: All UniRig-specific dependencies have been moved to unirig_requirements.txt
+# NOTE: 'bpy' should NOT be listed here; it's part of the Blender environment.
